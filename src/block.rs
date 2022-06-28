@@ -10,6 +10,7 @@ pub struct Block {
     pub previous_block_hash: BlockHashType,
     pub nonce: NonceType,
     pub payload: String,
+    pub difficulty: u128,
 }
 
 impl Debug for Block {
@@ -42,6 +43,7 @@ impl Hashable for Block {
         bytes.extend(u128_to_bytes(&self.timestamp));
         bytes.extend(u64_to_bytes(&self.nonce));
         bytes.extend(self.payload.as_bytes());
+        bytes.extend(u128_to_bytes(&self.difficulty));
         bytes
     }
 }
@@ -53,6 +55,7 @@ impl Block {
         previous_block_hash: BlockHashType,
         nonce: NonceType,
         payload: String,
+        difficulty: u128,
     ) -> Self {
         let block_hash = vec![0u8; 32];
         let mut block = Self {
@@ -62,10 +65,29 @@ impl Block {
             previous_block_hash,
             nonce,
             payload,
+            difficulty,
         };
 
         block.block_hash = block.hash();
         block
+    }
+
+    pub fn mine(&mut self) -> () {
+        for nonce_attempt in 0..u64::max_value() {
+            self.nonce = nonce_attempt;
+            let hash = self.hash();
+
+            if check_difficulty(&hash, self.difficulty) {
+                self.block_hash = hash;
+
+                println!("found block with nonce:{}", &self.nonce);
+                println!("Block is {:?}", self);
+
+                return ();
+            } else {
+                print!("running for {}\r", nonce_attempt);
+            }
+        }
     }
 }
 

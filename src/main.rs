@@ -10,9 +10,17 @@ fn main() {
     let timestamp = libs::now();
     let previous_block_hash = vec![0; 32];
     let nonce = 0u64;
+    let difficulty = 0x0000fffffffffffffffffffffffffffff;
 
     let payload = String::from("Genesis Block");
-    let block = Block::new(index, timestamp, previous_block_hash, nonce, payload);
+    let mut block = Block::new(
+        index,
+        timestamp,
+        previous_block_hash,
+        nonce,
+        payload,
+        difficulty,
+    );
 
     println!("Block is {:?}", block);
 
@@ -23,4 +31,6 @@ fn main() {
     println!("is {:?} for {:b}", my_u256, my_u256);
     println!("is {:?} for {:b}", right, right);
     println!("is {:?} for {:b}", left, left);
+
+    block.mine();
 }
