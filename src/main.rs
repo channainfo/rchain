@@ -1,6 +1,10 @@
 use block::*;
 
+use crate::blockchain::Blockchain;
+
 mod block;
+mod blockchain;
+mod constant;
 mod hashable;
 mod libs;
 mod types;
@@ -10,7 +14,7 @@ fn main() {
     let timestamp = libs::now();
     let previous_block_hash = vec![0; 32];
     let nonce = 0u64;
-    let difficulty = 0x0000fffffffffffffffffffffffffffff;
+    let difficulty = block::DIFFICULTY;
 
     let payload = String::from("Genesis Block");
     let mut block = Block::new(
@@ -33,4 +37,33 @@ fn main() {
     println!("is {:?} for {:b}", left, left);
 
     block.mine();
+
+    let blocks = vec![block];
+
+    let mut blockchain = Blockchain { blocks: blocks };
+
+    for index in 1..=10 {
+        let timestamp = libs::now();
+
+        let payload = format!("Block: {}", index);
+
+        let last_block_hash = blockchain.blocks[index - 1].block_hash.clone();
+
+        let mut next_block = Block::new(
+            index as u32,
+            timestamp,
+            last_block_hash,
+            nonce,
+            payload,
+            difficulty,
+        );
+
+        next_block.mine();
+
+        blockchain.blocks.push(next_block);
+
+        blockchain.print();
+    }
+
+    // println!("blockchain is {:?}", blockchain);
 }

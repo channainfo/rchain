@@ -13,6 +13,8 @@ pub struct Block {
     pub difficulty: u128,
 }
 
+pub static DIFFICULTY: u128 = 0x00fffffffffffffffffffffffffffffff;
+
 impl Debug for Block {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -49,6 +51,8 @@ impl Hashable for Block {
 }
 
 impl Block {
+    const DIFFICULTY: u128 = 0x00fffffffffffffffffffffffffffffff as u128;
+
     pub fn new(
         index: u32,
         timestamp: TimestampType,
@@ -88,6 +92,22 @@ impl Block {
                 print!("running for {}\r", nonce_attempt);
             }
         }
+    }
+
+    pub fn valid(&self) -> bool {
+        if self.difficulty != Block::DIFFICULTY {
+            return false;
+        }
+
+        if !check_difficulty(&self.block_hash, self.difficulty) {
+            return false;
+        }
+
+        let hash = self.hash();
+        if self.block_hash != hash {
+            return false;
+        }
+        true
     }
 }
 
